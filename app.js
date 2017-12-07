@@ -40,5 +40,5 @@ app.get('/about', (req, res) => {
 })
 
 app.listen(port, () => {
-	console.log(`Server is online at Port ${port}`)
+	console.log(`Server is online at Port ${port}.`)
 })
