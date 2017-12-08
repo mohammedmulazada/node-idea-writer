@@ -13,10 +13,7 @@ const mongoose = require('mongoose'),
 			type: Date,
 			default: Date.now,
 		},
-	})
+	}),
+	Idea = mongoose.model('Idea', IdeaSchema)
 
-mongoose.model('ideas', IdeaSchema)
-
-module.exports = {
-	IdeaSchema,
-}
+module.exports = {Idea}
