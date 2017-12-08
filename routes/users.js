@@ -1,8 +1,10 @@
 const express = require('express'),
 	{
-		Idea,
-	} = require('../models/Idea'),
+		User,
+	} = require('../models/User'),
 	mongoose = require('mongoose'),
+	bcrypt = require('bcryptjs'),
+	passport = require('passport'),
 	router = express.Router()
 
 
@@ -11,7 +13,78 @@ router.get('/login', (req, res) => {
 })
 
 router.get('/register', (req, res) => {
-	res.send('register')
+	res.render('users/register')
+})
+
+router.post('/login', (req, res, next) => {
+	passport.authenticate('local', {
+		successRedirect: '/ideas',
+		failureRedirect: '/users/login',
+		failureFlash: true
+	})(req, res, next)
+})
+
+router.post('/register', (req, res) => {
+	const errors = []
+
+	if (req.body.password !== req.body.password2) {
+		errors.push({
+			text: 'Password do not match.',
+		})
+	}
+	if (req.body.password < 4) {
+		errors.push({
+			text: 'Password has to be atleast 4 characters.',
+		})
+	}
+
+	if (errors.length > 0) {
+		res.render('users/register', {
+			errors,
+			name: req.body.name,
+			email: req.body.email,
+			password: req.body.password,
+			password2: req.body.password2,
+		})
+	} else {
+		User.findOne({
+				email: req.body.email,
+			})
+			.then((user) => {
+				if (user) {
+					req.flash('error_msg', 'Email already exists in database')
+					res.redirect('/users/register')
+				} else {
+					const newUser = new User({
+						name: req.body.name,
+						email: req.body.email,
+						password: req.body.password,
+					})
+					bcrypt.genSalt(10, (err, salt) => {
+						bcrypt.hash(newUser.password, salt, (err, hash) => {
+							if (err) throw err
+							newUser.password = hash
+							newUser.save()
+								.then((user) => {
+									req.flash('success_msg', 'You are now registered.')
+									res.redirect('/users/login')
+								})
+								.catch((err) => {
+									console.log(err)
+
+								})
+						})
+					})
+				}
+			})
+
+	}
+})
+
+router.get('/logout', (req, res) => {
+	req.logout()
+	req.flash('success_msg', 'Succesfully logged out')
+	res.redirect('/users/login')
 })
 
 module.exports = router
