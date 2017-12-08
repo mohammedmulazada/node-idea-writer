@@ -31,8 +31,23 @@ app.get('/ideas/add', (req, res) => {
 })
 
 app.post('/ideas', (req, res) => {
-	console.log(req.body)
-	res.send('ok')
+	let errors = []
+
+	if (!req.body.title) {
+		errors.push({text:'Please add a title'})
+	}
+	if (!req.body.details) {
+		errors.push({text:'Please add some details'})
+	}
+	if (errors.length > 0) {
+		res.render('ideas/add', {
+			errors,
+			title: req.body.title,
+			details: req.body.details
+		})
+	} else {
+		res.send('Passed')
+	}
 })
 
 app.get('/about', (req, res) => {
