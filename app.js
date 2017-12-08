@@ -46,7 +46,7 @@ app.post('/ideas', (req, res) => {
 			details: req.body.details
 		})
 	} else {
-		res.send('Passed')
+		res.send('passed')
 	}
 })
 
